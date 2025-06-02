@@ -20,10 +20,10 @@ jobs:
 
     - name: 📥 Install dependencies
       run: |
-        pip install -r requirements.txt
+        pip install -r segmentation_project/requirements.txt
 
     - name: 🔓 Make start.sh executable
-      run: chmod +x start.sh
+      run: chmod +x segmentation_project/start.sh
 
     - name: 🔐 Azure Login
       uses: azure/login@v1
@@ -35,4 +35,4 @@ jobs:
       with:
         app-name: segmentation-api-remy
         slot-name: production
-        package: .
+        package: segmentation_project
