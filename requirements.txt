@@ -6,3 +6,4 @@ tensorflow
 streamlit
 python-multipart
 requests
+gunicorn
