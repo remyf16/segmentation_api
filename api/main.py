@@ -1,46 +1,60 @@
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
-import uvicorn
+from fastapi import FastAPI, File, UploadFile, Request
+from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+import shutil
+import uuid
+import os
+
+from utils.model_loader import load_model
 from utils.image_processing import preprocess_image, postprocess_mask
-from utils.model_loader import load_model, predict_mask
-from PIL import Image
+
 import numpy as np
-import io
-import base64
+from PIL import Image
 
-app = FastAPI(
-    title="API de Segmentation d’Images",
-    root_path="/proxy/8000"
-)
+# Initialisation
+app = FastAPI()
 
-# Charger le modèle au démarrage
-model = load_model()
+# Config dossiers
+os.makedirs("uploads", exist_ok=True)
+os.makedirs("outputs", exist_ok=True)
 
-@app.post("/predict/")
-async def predict(file: UploadFile = File(...)):
-    if file.content_type not in ["image/jpeg", "image/png"]:
-        return JSONResponse(content={"error": "Format non supporté"}, status_code=400)
+# Modèle
+model = load_model("models/unet_mini_best.h5")
 
-    try:
-        # Lecture et traitement de l'image
-        contents = await file.read()
-        image = Image.open(io.BytesIO(contents)).convert("RGB")
-        image_array = preprocess_image(image)
+# Templates HTML
+templates = Jinja2Templates(directory="templates")
 
-        # Prédiction
-        mask = predict_mask(model, image_array)
-        mask_image = postprocess_mask(mask)
+# Route principale : formulaire HTML
+@app.get("/", response_class=HTMLResponse)
+async def form_page(request: Request):
+    return templates.TemplateResponse("form.html", {"request": request})
 
-        # Conversion de l’image en base64
-        buf = io.BytesIO()
-        mask_image.save(buf, format="PNG")
-        byte_im = buf.getvalue()
-        mask_b64 = base64.b64encode(byte_im).decode("utf-8")
+# Route POST : upload et prédiction
+@app.post("/predict", response_class=HTMLResponse)
+async def predict(request: Request, file: UploadFile = File(...)):
+    # Enregistrer l'image uploadée
+    file_id = str(uuid.uuid4())
+    input_path = f"uploads/{file_id}.png"
+    output_path = f"outputs/{file_id}_mask.png"
 
-        return JSONResponse(content={"mask_base64": mask_b64}, status_code=200)
+    with open(input_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
 
-    except Exception as e:
-        return JSONResponse(content={"error": f"Erreur lors de la prédiction : {str(e)}"}, status_code=500)
+    # Prétraitement + prédiction
+    image_array = preprocess_image(input_path)
+    prediction = model.predict(image_array[np.newaxis, ...])[0]
+    mask = postprocess_mask(prediction)
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # Sauvegarde masque
+    Image.fromarray(mask).save(output_path)
+
+    return templates.TemplateResponse("result.html", {
+        "request": request,
+        "original": input_path,
+        "output": output_path
+    })
+
+# Pour servir les images uploadées et les résultats
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")

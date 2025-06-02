@@ -19,7 +19,8 @@ jobs:
         python-version: '3.10'
 
     - name: 📥 Install dependencies
-      run: pip install -r requirements.txt
+      run: |
+        pip install -r requirements.txt
 
     - name: 🔓 Make start.sh executable
       run: chmod +x start.sh
@@ -29,10 +30,7 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: 🔍 Vérification de l’identité Azure
-      run: az account show
-
-    - name: 🚀 Déploiement vers Azure Web App
+    - name: 🚀 Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:
         app-name: segmentation-api-remy
