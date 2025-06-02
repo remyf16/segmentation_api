@@ -6,21 +6,25 @@ import shutil
 import uuid
 import os
 
-from utils.model_loader import load_model
-from utils.image_processing import preprocess_image, postprocess_mask
+from .api.utils.model_loader import load_model
+from .api.utils.image_processing import preprocess_image, postprocess_mask
 
 import numpy as np
 from PIL import Image
 
 # Initialisation
-app = FastAPI()
+app = FastAPI(
+    docs_url=None,
+    redoc_url=None,
+    openapi_url=None
+)
 
 # Config dossiers
 os.makedirs("uploads", exist_ok=True)
 os.makedirs("outputs", exist_ok=True)
 
 # Modèle
-model = load_model("models/unet_mini_best.h5")
+model = load_model()
 
 # Templates HTML
 templates = Jinja2Templates(directory="templates")
