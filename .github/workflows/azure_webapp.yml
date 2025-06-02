@@ -36,7 +36,3 @@ jobs:
         app-name: segmentation-api-remy
         slot-name: production
         package: .
-
-    - name: ✅ Debug : Affichage fin de job
-      run: echo "Déploiement terminé"
-
