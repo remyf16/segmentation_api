@@ -4,10 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import shutil
 import uuid
+import sys
 import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from .api.utils.model_loader import load_model
-from .api.utils.image_processing import preprocess_image, postprocess_mask
+from api.utils.model_loader import load_model
+from api.utils.image_processing import preprocess_image, postprocess_mask
 
 import numpy as np
 from PIL import Image
