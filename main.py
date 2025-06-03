@@ -17,14 +17,15 @@ from PIL import Image
 # Initialisation
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
+# Créer les dossiers avant de les monter
+os.makedirs("uploads", exist_ok=True)
+os.makedirs("outputs", exist_ok=True)
+os.makedirs("catalog", exist_ok=True)
+
 # Montages des répertoires statiques
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
 app.mount("/catalog", StaticFiles(directory="catalog"), name="catalog")
-
-# Création des répertoires si besoin
-os.makedirs("uploads", exist_ok=True)
-os.makedirs("outputs", exist_ok=True)
 
 # Chargement du modèle
 model = load_model()
