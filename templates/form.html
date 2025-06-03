@@ -21,13 +21,16 @@
       display: inline-block;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input[type="file"] {
+    input[type="file"], select {
       margin-bottom: 1rem;
+      padding: 0.5rem;
+      width: 100%;
     }
     label {
       font-weight: bold;
       display: block;
       margin-bottom: 0.5rem;
+      text-align: left;
     }
     #fileName {
       margin: 1rem 0;
@@ -41,6 +44,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      width: 100%;
     }
     button:hover {
       background-color: #5d0ac0;
@@ -52,10 +56,21 @@
   <h1>Segmentation d’image</h1>
 
   <form action="/predict" method="post" enctype="multipart/form-data">
-    <label for="file">Sélectionnez une image :</label>
-    <input type="file" id="file" name="file" accept="image/*" required onchange="updateFileName()">
+    <label for="file">📤 Importer une image :</label>
+    <input type="file" id="file" name="file" accept="image/*" onchange="updateFileName()">
     <div id="fileName">Aucun fichier choisi</div>
 
+    <hr style="margin: 2rem 0;">
+
+    <label for="catalog">📁 Ou choisir une image du catalogue :</label>
+    <select name="catalog_image" id="catalog">
+      <option value="">-- Aucune sélection --</option>
+      {% for img in catalog_images %}
+        <option value="{{ img }}">{{ img }}</option>
+      {% endfor %}
+    </select>
+
+    <br><br>
     <button type="submit">Lancer la prédiction</button>
   </form>
 
