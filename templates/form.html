@@ -22,12 +22,16 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     input[type="file"] {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
     label {
       font-weight: bold;
       display: block;
       margin-bottom: 0.5rem;
+    }
+    #fileName {
+      margin: 1rem 0;
+      color: #555;
     }
     button {
       padding: 0.8rem 1.5rem;
@@ -41,10 +45,6 @@
     button:hover {
       background-color: #5d0ac0;
     }
-    #fileName {
-      margin-bottom: 1.2rem;
-      color: #555;
-    }
   </style>
 </head>
 <body>
@@ -54,4 +54,22 @@
   <form action="/predict" method="post" enctype="multipart/form-data">
     <label for="file">Sélectionnez une image :</label>
     <input type="file" id="file" name="file" accept="image/*" required onchange="updateFileName()">
-    <div id="
+    <div id="fileName">Aucun fichier choisi</div>
+
+    <button type="submit">Lancer la prédiction</button>
+  </form>
+
+  <script>
+    function updateFileName() {
+      const input = document.getElementById("file");
+      const label = document.getElementById("fileName");
+      if (input.files.length > 0) {
+        label.textContent = input.files[0].name;
+      } else {
+        label.textContent = "Aucun fichier choisi";
+      }
+    }
+  </script>
+
+</body>
+</html>
