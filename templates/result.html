@@ -76,7 +76,7 @@
             {% elif item.class_id == 7 %}128,128,128
             {% else %}255,255,255{% endif %}
           );margin-right:8px;"></span>
-          Classe {{ item.class_id }} : {{ item.percent }} %
+          {{ item.label }} : {{ item.percent }} %
         </li>
       {% endfor %}
     </ul>
