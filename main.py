@@ -59,6 +59,21 @@ async def predict(request: Request, file: UploadFile = File(...)):
     # Sauvegarde masque
     mask.save(output_path)
 
+    # Légendes lisibles
+    CLASS_NAMES = {
+        0: "Arrière-plan",
+        1: "Véhicules",
+        2: "Piétons",
+        3: "Bâtiments",
+        4: "Route",
+        5: "Signalisation",
+        6: "Végétation",
+        7: "Autres"
+    }
+    for item in stats:
+        item["label"] = CLASS_NAMES.get(item["class_id"], f"Classe {item['class_id']}")
+
+
     return templates.TemplateResponse("result.html", {
         "request": request,
         "original": f"/uploads/{file_id}.png",

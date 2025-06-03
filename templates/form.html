@@ -1,11 +1,57 @@
 <!DOCTYPE html>
-<html>
-<head><title>Segmentation d’image</title></head>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Uploader une image</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      text-align: center;
+      padding: 3rem;
+    }
+    h1 {
+      margin-bottom: 2rem;
+      color: #333;
+    }
+    form {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="file"] {
+      margin-bottom: 1.5rem;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    button {
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      background-color: #4b0082;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #5d0ac0;
+    }
+    #fileName {
+      margin-bottom: 1.2rem;
+      color: #555;
+    }
+  </style>
+</head>
 <body>
-  <h2>Uploader une image</h2>
+
+  <h1>Segmentation d’image</h1>
+
   <form action="/predict" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept="image/*" required>
-    <button type="submit">Envoyer</button>
-  </form>
-</body>
-</html>
+    <label for="file">Sélectionnez une image :</label>
+    <input type="file" id="file" name="file" accept="image/*" required onchange="updateFileName()">
+    <div id="
