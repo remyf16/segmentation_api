@@ -53,7 +53,7 @@ async def predict(request: Request, file: UploadFile = File(...)):
     mask = postprocess_mask(prediction)
 
     # Sauvegarde masque
-    Image.fromarray(mask).save(output_path)
+    mask.save(output_path)
 
     return templates.TemplateResponse("result.html", {
         "request": request,
