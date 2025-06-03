@@ -92,4 +92,6 @@ async def predict(
         "request": request,
         "original": f"/uploads/{file_id}.png",
         "output": f"/outputs/{file_id}_mask.png",
-        "overlay":
+        "overlay": f"/outputs/{file_id}_overlay.png",
+        "stats": stats
+    })
