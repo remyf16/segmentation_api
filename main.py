@@ -57,8 +57,8 @@ async def predict(request: Request, file: UploadFile = File(...)):
 
     return templates.TemplateResponse("result.html", {
         "request": request,
-        "original": input_path,
-        "output": output_path
+        "original": f"/uploads/{file_id}.png",
+        "output": f"/outputs/{file_id}_mask.png"
     })
 
 # Pour servir les images uploadées et les résultats
