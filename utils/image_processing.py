@@ -3,9 +3,10 @@ from PIL import Image
 
 TARGET_SIZE = (512, 256)
 
-def preprocess_image(image: Image.Image):
+def preprocess_image(image_path):
+    image = Image.open(image_path).convert("RGB")  # ouverture + conversion
     image = image.resize(TARGET_SIZE)
-    image_array = np.array(image) / 255.0  # normalisation
+    image_array = np.array(image) / 255.0
     return image_array
 
 def postprocess_mask(mask_array):
