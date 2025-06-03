@@ -50,7 +50,7 @@ async def predict(request: Request, file: UploadFile = File(...)):
     # Prétraitement + prédiction
     image_array = preprocess_image(input_path)
     prediction = model.predict(image_array[np.newaxis, ...])[0]
-    mask = postprocess_mask(prediction)
+    mask, stats = postprocess_mask(prediction)
 
     overlay = overlay_mask(input_path, mask)
     overlay_path = f"outputs/{file_id}_overlay.png"
@@ -64,6 +64,7 @@ async def predict(request: Request, file: UploadFile = File(...)):
         "original": f"/uploads/{file_id}.png",
         "output": f"/outputs/{file_id}_mask.png",
         "overlay": f"/outputs/{file_id}_overlay.png"
+        "stats": stats
     })
 
 # Pour servir les images uploadées et les résultats

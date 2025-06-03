@@ -10,30 +10,34 @@ def preprocess_image(image_path):
     return image_array
 
 def postprocess_mask(mask_array):
-    # Si le masque a 4 dimensions : (1, H, W, C), on squeeze
+    # Gestion des dimensions
     if len(mask_array.shape) == 4:
         mask_array = mask_array[0]
-
-    # Si le masque est multicanal : (H, W, C), on applique argmax
     if len(mask_array.shape) == 3 and mask_array.shape[2] > 1:
         mask_array = np.argmax(mask_array, axis=-1)
 
-    # Palette de couleurs : (classe_id → couleur RGB)
+    # Palette RGB
     palette = np.array([
-        [0, 0, 0],        # Classe 0 : noir
-        [255, 0, 0],      # Classe 1 : rouge
-        [0, 255, 0],      # Classe 2 : vert
-        [0, 0, 255],      # Classe 3 : bleu
-        [255, 255, 0],    # Classe 4 : jaune
-        [255, 0, 255],    # Classe 5 : magenta
-        [0, 255, 255],    # Classe 6 : cyan
-        [128, 128, 128]   # Classe 7 : gris
+        [0, 0, 0],        # 0 : Fond
+        [255, 0, 0],      # 1 : Classe 1
+        [255, 255, 0],    # 2 : Classe 2
+        [0, 255, 0],      # 3 : Classe 3
+        [0, 0, 255],      # 4 : ...
+        [255, 0, 255],
+        [0, 255, 255],
+        [128, 128, 128]
     ], dtype=np.uint8)
 
-    # Convertir le masque (H, W) → (H, W, 3) via la palette
+    # Masque colorisé
     mask_rgb = palette[mask_array]
+    mask_img = Image.fromarray(mask_rgb)
 
-    return Image.fromarray(mask_rgb)
+    # Stats de classes
+    unique, counts = np.unique(mask_array, return_counts=True)
+    total = mask_array.size
+    stats = [{"class_id": int(cls), "percent": round(100 * count / total, 1)} for cls, count in zip(unique, counts)]
+
+    return mask_img, stats
     
 def overlay_mask(original_path, mask_img, alpha=0.5):
     original = Image.open(original_path).convert("RGB").resize(mask_img.size)

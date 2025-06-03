@@ -1,29 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Résultat</title>
+  <meta charset="UTF-8">
+  <title>Résultat de la prédiction</title>
   <style>
-    .container { display: flex; gap: 20px; }
-    .image-block { text-align: center; }
-    img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 2rem;
+    }
+    h2 {
+      margin-bottom: 0.5rem;
+    }
+    .container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      align-items: flex-start;
+    }
+    .image-block {
+      flex: 1;
+      max-width: 400px;
+    }
+    .image-block img {
+      width: 100%;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    ul {
+      text-align: left;
+      display: inline-block;
+      font-family: monospace;
+    }
+    a {
+      display: inline-block;
+      margin-top: 2rem;
+      color: #4b0082;
+      text-decoration: none;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
+
   <div class="container">
     <div class="image-block">
       <h2>Image d'origine :</h2>
       <img src="{{ original }}" alt="Image d'origine">
     </div>
     <div class="image-block">
-      <h2>Masque prédict :</h2>
-      <img src="{{ output }}" alt="Masque prédict">
+      <h2>Masque prédit :</h2>
+      <img src="{{ output }}" alt="Masque prédit">
     </div>
     <div class="image-block">
       <h2>Overlay :</h2>
-      <img src="{{ overlay }}" alt="Overlay">
+      <img src="{{ overlay }}" alt="Overlay du masque">
     </div>
   </div>
-  <br>
-  <a href="/">Revenir</a>
+
+  <div class="image-block" style="margin-top: 2rem;">
+    <h2>Légende du masque :</h2>
+    <ul>
+      {% for item in stats %}
+        <li>
+          <span style="display:inline-block;width:15px;height:15px;background-color:rgb(
+            {% if item.class_id == 0 %}0,0,0
+            {% elif item.class_id == 1 %}255,0,0
+            {% elif item.class_id == 2 %}255,255,0
+            {% elif item.class_id == 3 %}0,255,0
+            {% elif item.class_id == 4 %}0,0,255
+            {% elif item.class_id == 5 %}255,0,255
+            {% elif item.class_id == 6 %}0,255,255
+            {% elif item.class_id == 7 %}128,128,128
+            {% else %}255,255,255{% endif %}
+          );margin-right:8px;"></span>
+          Classe {{ item.class_id }} : {{ item.percent }} %
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <a href="/">← Revenir</a>
 </body>
 </html>
