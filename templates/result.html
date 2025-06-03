@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head><title>Résultat</title></head>
+<head>
+  <title>Résultat</title>
+  <style>
+    .container { display: flex; gap: 20px; }
+    .image-block { text-align: center; }
+    img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+  </style>
+</head>
 <body>
-  <h2>Image d'origine :</h2>
-  <img src="{{ original }}" alt="Image d'origine" width="400"><br><br>
-
-  <h2>Masque prédit :</h2>
-  <img src="{{ output }}" alt="Masque prédit" width="400"><br><br>
-
+  <div class="container">
+    <div class="image-block">
+      <h2>Image d'origine :</h2>
+      <img src="{{ original }}" alt="Image d'origine">
+    </div>
+    <div class="image-block">
+      <h2>Masque prédict :</h2>
+      <img src="{{ output }}" alt="Masque prédict">
+    </div>
+    <div class="image-block">
+      <h2>Overlay :</h2>
+      <img src="{{ overlay }}" alt="Overlay">
+    </div>
+  </div>
+  <br>
   <a href="/">Revenir</a>
 </body>
 </html>

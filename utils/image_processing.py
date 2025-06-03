@@ -34,3 +34,7 @@ def postprocess_mask(mask_array):
     mask_rgb = palette[mask_array]
 
     return Image.fromarray(mask_rgb)
+    
+def overlay_mask(original_path, mask_img, alpha=0.5):
+    original = Image.open(original_path).convert("RGB").resize(mask_img.size)
+    return Image.blend(original, mask_img.convert("RGB"), alpha)

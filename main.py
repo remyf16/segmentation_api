@@ -9,7 +9,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.model_loader import load_model
-from utils.image_processing import preprocess_image, postprocess_mask
+from utils.image_processing import preprocess_image, postprocess_mask, overlay_mask
 
 import numpy as np
 from PIL import Image
@@ -52,13 +52,18 @@ async def predict(request: Request, file: UploadFile = File(...)):
     prediction = model.predict(image_array[np.newaxis, ...])[0]
     mask = postprocess_mask(prediction)
 
+    overlay = overlay_mask(input_path, mask)
+    overlay_path = f"outputs/{file_id}_overlay.png"
+    overlay.save(overlay_path)
+
     # Sauvegarde masque
     mask.save(output_path)
 
     return templates.TemplateResponse("result.html", {
         "request": request,
         "original": f"/uploads/{file_id}.png",
-        "output": f"/outputs/{file_id}_mask.png"
+        "output": f"/outputs/{file_id}_mask.png",
+        "overlay": f"/outputs/{file_id}_overlay.png"
     })
 
 # Pour servir les images uploadées et les résultats
