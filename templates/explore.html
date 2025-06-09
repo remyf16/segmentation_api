@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Exploration du dataset</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background-color: #f9f9f9;
+    }
+    h1, h2 {
+      color: #4b0082;
+      text-align: center;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+    }
+    .image-group {
+      background-color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+    .image-group img {
+      width: 100%;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+    }
+    .image-group small {
+      display: block;
+      margin-top: 0.5rem;
+      color: #555;
+    }
+    .chart {
+      text-align: center;
+      margin: 3rem 0;
+    }
+    ul {
+      max-width: 500px;
+      margin: auto;
+      padding-left: 0;
+      list-style: none;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    a {
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
+      color: #4b0082;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Exploration du Dataset</h1>
+
+  <div class="chart">
+    <h2>Distribution des classes</h2>
+    <img src="data:image/png;base64,{{ plot_data }}" alt="Histogramme de classes">
+    <ul>
+      {% for label, count in class_counts.items() %}
+        <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <h2>Comparaison des modèles</h2>
+  <div class="container">
+    {% for triplet in comparisons %}
+      <div class="image-group">
+        <img src="{{ triplet.original }}" alt="Original">
+        <small>Image d'origine</small>
+        <img src="{{ triplet.unet }}" alt="U-Net">
+        <small>Masque U-Net (baseline)</small>
+        <img src="{{ triplet.deeplab }}" alt="DeepLabV3+">
+        <small>Masque DeepLabV3+</small>
+      </div>
+    {% endfor %}
+  </div>
+
+  <a href="/">← Revenir à la prédiction</a>
+</body>
+</html>
