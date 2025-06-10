@@ -17,6 +17,8 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from io import BytesIO
 import base64
+from typing import Dict, Tuple
+
 
 # Initialisation de l'application
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
