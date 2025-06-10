@@ -11,7 +11,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.model_loader import load_model
 from utils.image_processing import preprocess_image, postprocess_mask, overlay_mask
-from utils.class_stats import compute_class_stats
 
 import numpy as np
 from PIL import Image
@@ -109,6 +108,48 @@ async def predict(
 # ---------------------
 # Page d'exploration du dataset
 # ---------------------
+
+# Fonction locale pour calculer la répartition des classes
+def compute_class_stats(catalog_path: str) -> Tuple[Dict[str, int], str]:
+    CLASS_NAMES = {
+        0: "Arrière-plan",
+        1: "Véhicules",
+        2: "Piétons",
+        3: "Bâtiments",
+        4: "Route",
+        5: "Signalisation",
+        6: "Végétation",
+        7: "Autres"
+    }
+
+    counts = {label: 0 for label in CLASS_NAMES.values()}
+
+    for filename in os.listdir(catalog_path):
+        if filename.endswith("_mask_unet.png"):
+            mask_path = os.path.join(catalog_path, filename)
+            mask = np.array(Image.open(mask_path))
+
+            for class_id, label in CLASS_NAMES.items():
+                counts[label] += int(np.sum(mask == class_id))
+
+    # Générer le graphique matplotlib (base64)
+    labels = list(counts.keys())
+    values = list(counts.values())
+
+    fig, ax = plt.subplots()
+    ax.barh(labels, values, color="mediumpurple")
+    ax.set_xlabel("Pixels")
+    ax.set_title("Distribution des classes (U-Net)")
+    plt.tight_layout()
+
+    buf = BytesIO()
+    plt.savefig(buf, format="png")
+    plt.close(fig)
+    buf.seek(0)
+
+    encoded_plot = base64.b64encode(buf.read()).decode("utf-8")
+    return counts, encoded_plot
+    
 @app.get("/explore", response_class=HTMLResponse)
 async def explore_dataset(request: Request):
     catalog_path = "catalog"
@@ -131,7 +172,8 @@ async def explore_dataset(request: Request):
             })
 
     # Générer la répartition des classes (optionnel)
-    class_counts, plot_data = compute_class_stats()
+    catalog_path = "catalog"  # ou le chemin absolu complet si nécessaire
+    class_counts, plot_data = compute_class_stats(catalog_path)
 
     return templates.TemplateResponse("explore.html", {
         "request": request,
