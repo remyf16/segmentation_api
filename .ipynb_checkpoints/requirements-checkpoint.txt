@@ -7,3 +7,5 @@ streamlit
 python-multipart
 requests
 gunicorn
+jinja2
+matplotlib
