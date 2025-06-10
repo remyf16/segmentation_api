@@ -110,46 +110,34 @@ async def predict(
 # Page d'exploration du dataset
 # ---------------------
 @app.get("/explore", response_class=HTMLResponse)
-async def explore_page(request: Request):
-    sample_images = sorted([
-        f for f in os.listdir("catalog") 
-        if f.lower().endswith((".png", ".jpg", ".jpeg")) and "_mask" not in f
-    ])[:6]
+async def explore_dataset(request: Request):
+    catalog_path = "catalog"
+    image_files = [f for f in os.listdir(catalog_path) if f.endswith(".png") and "_mask" not in f]
 
-    class_counts = compute_class_stats("catalog")
-
-    fig, ax = plt.subplots()
-    class_labels = list(class_counts.keys())
-    class_values = list(class_counts.values())
-    ax.bar(class_labels, class_values, color='teal')
-    ax.set_title("Distribution des classes")
-    ax.set_ylabel("Nombre de pixels")
-    ax.set_xlabel("Classe")
-    plt.xticks(rotation=45)
-
-    buffer = BytesIO()
-    plt.tight_layout()
-    fig.savefig(buffer, format="png")
-    buffer.seek(0)
-    img_base64 = base64.b64encode(buffer.read()).decode("utf-8")
-    plt.close(fig)
-
-    # Génération des paths pour les comparaisons
     comparisons = []
-    for img in sample_images:
-        basename = os.path.splitext(img)[0]
-        comparisons.append({
-            "original": f"/catalog/{img}",
-            "unet": f"/catalog/{basename}_mask_unet.png",
-            "deeplab": f"/catalog/{basename}_mask.png"  # ou _mask_dl.png selon nommage
-        })
+    for img_file in image_files:
+        base = img_file.rsplit(".", 1)[0]
+        original = f"/catalog/{img_file}"
+        unet = f"/catalog/{base}_mask_unet.png"
+        deeplab = f"/catalog/{base}_mask.png"
+
+        # Vérifier si les 2 masques existent
+        if os.path.exists(os.path.join(catalog_path, f"{base}_mask_unet.png")) and \
+           os.path.exists(os.path.join(catalog_path, f"{base}_mask.png")):
+            comparisons.append({
+                "original": original,
+                "unet": unet,
+                "deeplab": deeplab
+            })
+
+    # Générer la répartition des classes (optionnel)
+    class_counts, plot_data = compute_class_stats()
 
     return templates.TemplateResponse("explore.html", {
         "request": request,
-        "samples": sample_images,
-        "plot_data": img_base64,
+        "comparisons": comparisons,
         "class_counts": class_counts,
-        "comparisons": comparisons
+        "plot_data": plot_data
     })
 
 # ---------------------
