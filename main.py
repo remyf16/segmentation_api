@@ -155,26 +155,29 @@ def compute_class_stats(catalog_path: str) -> Tuple[Dict[str, int], str]:
 @app.get("/explore", response_class=HTMLResponse)
 async def explore_dataset(request: Request):
     catalog_path = "catalog"
-    image_files = [f for f in os.listdir(catalog_path) if f.endswith(".png") and "_mask" not in f]
+    image_files = [f for f in os.listdir(catalog_path) if f.endswith(".png") and "_mask" not in f and "_overlay" not in f]
 
     comparisons = []
     for img_file in image_files:
         base = img_file.rsplit(".", 1)[0]
         original = f"/catalog/{img_file}"
         unet = f"/catalog/{base}_mask_unet.png"
-        deeplab = f"/catalog/{base}_mask.png"
+        deeplab = f"/catalog/{base}_mask_deeplab.png"
+        overlay_unet = f"/catalog/{base}_overlay_unet.png"
+        overlay_deeplab = f"/catalog/{base}_overlay_deeplab.png"
 
-        # Vérifier si les 2 masques existent
-        if os.path.exists(os.path.join(catalog_path, f"{base}_mask_unet.png")) and \
-           os.path.exists(os.path.join(catalog_path, f"{base}_mask.png")):
+        if all(os.path.exists(os.path.join(catalog_path, path)) for path in [
+            f"{base}_mask_unet.png", f"{base}_mask_deeplab.png",
+            f"{base}_overlay_unet.png", f"{base}_overlay_deeplab.png"
+        ]):
             comparisons.append({
                 "original": original,
                 "unet": unet,
-                "deeplab": deeplab
+                "deeplab": deeplab,
+                "overlay_unet": overlay_unet,
+                "overlay_deeplab": overlay_deeplab
             })
 
-    # Générer la répartition des classes (optionnel)
-    catalog_path = "catalog"  # ou le chemin absolu complet si nécessaire
     class_counts, plot_data = compute_class_stats(catalog_path)
 
     return templates.TemplateResponse("explore.html", {
