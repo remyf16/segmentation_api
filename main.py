@@ -128,7 +128,7 @@ CLASS_NAMES = {
     7: "Autres"
 }
 
-def compute_class_stats_dual(catalog_path: str) -> Tuple[Dict[str, int], Dict[str, int], str, str]:
+def compute_class_stats_dual(catalog_path: str) -> Tuple[Dict[str, float], Dict[str, float], str, str]:
     counts_unet = {label: 0 for label in CLASS_NAMES.values()}
     counts_deeplab = {label: 0 for label in CLASS_NAMES.values()}
 
@@ -144,37 +144,51 @@ def compute_class_stats_dual(catalog_path: str) -> Tuple[Dict[str, int], Dict[st
             for class_id, label in CLASS_NAMES.items():
                 counts_deeplab[label] += int(np.sum(mask == class_id))
 
+    # Total pixels
+    total_unet = sum(counts_unet.values())
+    total_deeplab = sum(counts_deeplab.values())
+
+    # Pourcentages
+    percentages_unet = {label: round((count / total_unet) * 100, 2) if total_unet > 0 else 0
+                        for label, count in counts_unet.items()}
+    percentages_deeplab = {label: round((count / total_deeplab) * 100, 2) if total_deeplab > 0 else 0
+                           for label, count in counts_deeplab.items()}
+
     # Graphique U-Net
     fig_unet = go.Figure(go.Bar(
-        x=list(counts_unet.values()),
-        y=list(counts_unet.keys()),
+        x=list(percentages_unet.values()),
+        y=list(percentages_unet.keys()),
         orientation='h',
         marker=dict(color='mediumpurple'),
-        text=list(counts_unet.values()),
+        text=[f"{v}%" for v in percentages_unet.values()],
         textposition='auto'
     ))
     fig_unet.update_layout(
         title="Distribution des classes (U-Net)",
-        xaxis_title="Pixels", yaxis_title="Classes", template="plotly_white"
+        xaxis_title="Pourcentage (%)",
+        yaxis_title="Classes",
+        template="plotly_white"
     )
     html_unet = plot(fig_unet, output_type='div', include_plotlyjs=False)
 
-    # Graphique DeepLab
+    # Graphique DeepLabV3+
     fig_deeplab = go.Figure(go.Bar(
-        x=list(counts_deeplab.values()),
-        y=list(counts_deeplab.keys()),
+        x=list(percentages_deeplab.values()),
+        y=list(percentages_deeplab.keys()),
         orientation='h',
         marker=dict(color='lightseagreen'),
-        text=list(counts_deeplab.values()),
+        text=[f"{v}%" for v in percentages_deeplab.values()],
         textposition='auto'
     ))
     fig_deeplab.update_layout(
         title="Distribution des classes (DeepLabV3+)",
-        xaxis_title="Pixels", yaxis_title="Classes", template="plotly_white"
+        xaxis_title="Pourcentage (%)",
+        yaxis_title="Classes",
+        template="plotly_white"
     )
     html_deeplab = plot(fig_deeplab, output_type='div', include_plotlyjs='cdn')
 
-    return counts_unet, counts_deeplab, html_unet, html_deeplab
+    return percentages_unet, percentages_deeplab, html_unet, html_deeplab
 
     
 @app.get("/explore", response_class=HTMLResponse)

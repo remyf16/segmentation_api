@@ -81,31 +81,33 @@
 
   <h1>Exploration du Dataset</h1>
 
-  <h2>Distribution des classes par modèle</h2>
+ <h2>Distribution des classes par modèle</h2>
 
-  <div class="chart-block">
+<div class="chart-block">
 
-    <div class="chart-single">
-      <h3>U-Net</h3>
-      {{ plot_unet | safe }}
-      <ul>
-        {% for label, count in counts_unet.items() %}
-          <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
-        {% endfor %}
-      </ul>
-    </div>
-
-    <div class="chart-single">
-      <h3>DeepLabV3+</h3>
-      {{ plot_deeplab | safe }}
-      <ul>
-        {% for label, count in counts_deeplab.items() %}
-          <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
-        {% endfor %}
-      </ul>
-    </div>
-
+  <div class="chart-single">
+    <h3>U-Net</h3>
+    {{ plot_unet | safe }}
+    <ul>
+      {% set total = counts_unet.values() | sum %}
+      {% for label, count in counts_unet.items() %}
+        <li><strong>{{ label }}</strong> : {{ "%.2f"|format(100 * count / total) }} % ({{ count }} pixels)</li>
+      {% endfor %}
+    </ul>
   </div>
+
+  <div class="chart-single">
+    <h3>DeepLabV3+</h3>
+    {{ plot_deeplab | safe }}
+    <ul>
+      {% set total = counts_deeplab.values() | sum %}
+      {% for label, count in counts_deeplab.items() %}
+        <li><strong>{{ label }}</strong> : {{ "%.2f"|format(100 * count / total) }} % ({{ count }} pixels)</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</div>
 
   <h2>Comparaison des masques</h2>
 
