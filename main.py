@@ -169,7 +169,7 @@ def compute_class_stats_dual(catalog_path: str) -> Tuple[Dict[str, float], Dict[
         yaxis_title="Classes",
         template="plotly_white"
     )
-    html_unet = plot(fig_unet, output_type='div', include_plotlyjs=False)
+    html_unet = plot(fig_unet, output_type='div', include_plotlyjs='cdn')
 
     # Graphique DeepLabV3+
     fig_deeplab = go.Figure(go.Bar(
