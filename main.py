@@ -28,6 +28,11 @@ from typing import Dict, Tuple
 
 # Initialisation de l'application
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+app.mount("/preprocessing_examples", StaticFiles(directory="preprocessing_examples"), name="preprocessing_examples")
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
+app.mount("/catalog", StaticFiles(directory="catalog"), name="catalog")
+
 
 # Création des dossiers nécessaires
 os.makedirs("uploads", exist_ok=True)
@@ -114,7 +119,7 @@ async def predict(
     })
 
 # ---------------------
-# Page d'exploration du dataset
+# Page de comparaison des modèles
 # ---------------------
 
 CLASS_NAMES = {

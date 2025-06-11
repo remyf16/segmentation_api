@@ -4,6 +4,45 @@
   <meta charset="UTF-8">
   <title>Exploration du dataset</title>
   <style>
+
+    /* Bouton contraste */
+    .contrast-btn {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 5px;
+        font-size: 14px;
+        z-index: 1000;
+        cursor: pointer;
+    }
+    
+    /* Mode contraste élevé */
+    body.high-contrast {
+        background-color: #000 !important;
+        color: #fff !important;
+    }
+    
+    body.high-contrast h1,
+    body.high-contrast h2,
+    body.high-contrast h3,
+    body.high-contrast p,
+    body.high-contrast li {
+        color: #fff !important;
+    }
+    
+    body.high-contrast a {
+        color: #00ffff !important;
+    }
+    
+    body.high-contrast .chart-single {
+        border: 2px solid #fff;
+        background-color: #111;
+    }
+      
     body {
       font-family: Arial, sans-serif;
       margin: 2rem;
@@ -75,9 +114,28 @@
       text-decoration: none;
       font-weight: bold;
     }
+    .transformations {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    
+    .transform-block {
+      text-align: center;
+    }
+    
+    .transform-block img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
   </style>
 </head>
 <body>
+<button id="contrastToggle" class="contrast-btn" onclick="toggleContrast()">Activer le mode contraste élevé</button>
 
   <h1>Comparaison des modèles</h1>
 
@@ -144,6 +202,41 @@
     {% endfor %}
   </div>
 
+    <hr>
+    <h2>Transformations appliquées aux images</h2>
+    <p>Voici un exemple d’image du dataset et les transformations appliquées lors du traitement par chaque modèle :</p>
+    
+    <div class="transformations">
+      <div class="transform-block">
+        <h3>Image originale</h3>
+        <img src="/preprocessing_examples/1_original.png" alt="Image originale">
+      </div>
+      <div class="transform-block">
+        <h3>U-Net : resized</h3>
+        <img src="/preprocessing_examples/2_unet_resized.png" alt="U-Net resized">
+      </div>
+      <div class="transform-block">
+        <h3>U-Net : blurred</h3>
+        <img src="/preprocessing_examples/3_unet_blurred.png" alt="U-Net blurred">
+      </div>
+      <div class="transform-block">
+        <h3>DeepLab : resized</h3>
+        <img src="/preprocessing_examples/4_deeplab_resized.png" alt="DeepLab resized">
+      </div>
+      <div class="transform-block">
+        <h3>DeepLab : preprocessed</h3>
+        <img src="/preprocessing_examples/5_deeplab_preprocessed.png" alt="DeepLab preprocessed">
+      </div>
+    </div>
+
+
   <a href="/">← Revenir à la prédiction</a>
+
+    <script>
+function toggleContrast() {
+    document.body.classList.toggle("high-contrast");
+}
+</script>
+
 </body>
 </html>
