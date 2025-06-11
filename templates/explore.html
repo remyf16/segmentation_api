@@ -73,15 +73,15 @@
 
   <h1>Exploration du Dataset</h1>
 
-  <div class="chart">
-    <h2>Distribution des classes</h2>
-    <img src="data:image/png;base64,{{ plot_data }}" alt="Histogramme de classes">
-    <ul>
-      {% for label, count in class_counts.items() %}
-        <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
-      {% endfor %}
-    </ul>
-  </div>
+<div class="chart">
+  <h2>Distribution des classes</h2>
+  {{ plot_data | safe }}
+  <ul>
+    {% for label, count in class_counts.items() %}
+      <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
+    {% endfor %}
+  </ul>
+</div>
 
   <h2>Comparaison des modèles</h2>
 <div class="container">

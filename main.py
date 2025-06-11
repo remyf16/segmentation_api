@@ -134,23 +134,30 @@ def compute_class_stats(catalog_path: str) -> Tuple[Dict[str, int], str]:
             for class_id, label in CLASS_NAMES.items():
                 counts[label] += int(np.sum(mask == class_id))
 
-    # Générer le graphique matplotlib (base64)
-    labels = list(counts.keys())
-    values = list(counts.values())
+import plotly.graph_objs as go
 
-    fig, ax = plt.subplots()
-    ax.barh(labels, values, color="mediumpurple")
-    ax.set_xlabel("Pixels")
-    ax.set_title("Distribution des classes (U-Net)")
-    plt.tight_layout()
+# ...
 
-    buf = BytesIO()
-    plt.savefig(buf, format="png")
-    plt.close(fig)
-    buf.seek(0)
+fig = go.Figure(go.Bar(
+    x=values,
+    y=labels,
+    orientation='h',
+    marker=dict(color='mediumpurple'),
+    text=values,
+    textposition='auto'
+))
 
-    encoded_plot = base64.b64encode(buf.read()).decode("utf-8")
-    return counts, encoded_plot
+fig.update_layout(
+    title="Distribution des classes (U-Net)",
+    xaxis_title="Pixels",
+    yaxis_title="Classes",
+    template="plotly_white"
+)
+
+# Génère un code HTML à insérer dans le template
+html_plot = fig.to_html(full_html=False, include_plotlyjs='cdn')
+return counts, html_plot
+
     
 @app.get("/explore", response_class=HTMLResponse)
 async def explore_dataset(request: Request):
