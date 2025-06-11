@@ -112,6 +112,9 @@ async def predict(
 # ---------------------
 
 # Fonction locale pour calculer la répartition des classes
+from plotly.offline import plot
+import plotly.graph_objs as go
+
 def compute_class_stats(catalog_path: str) -> Tuple[Dict[str, int], str]:
     CLASS_NAMES = {
         0: "Arrière-plan",
@@ -134,30 +137,29 @@ def compute_class_stats(catalog_path: str) -> Tuple[Dict[str, int], str]:
             for class_id, label in CLASS_NAMES.items():
                 counts[label] += int(np.sum(mask == class_id))
 
-import plotly.graph_objs as go
+    # Génération du graphique Plotly
+    labels = list(counts.keys())
+    values = list(counts.values())
 
-# ...
+    fig = go.Figure(go.Bar(
+        x=values,
+        y=labels,
+        orientation='h',
+        marker=dict(color='mediumpurple'),
+        text=values,
+        textposition='auto'
+    ))
 
-fig = go.Figure(go.Bar(
-    x=values,
-    y=labels,
-    orientation='h',
-    marker=dict(color='mediumpurple'),
-    text=values,
-    textposition='auto'
-))
+    fig.update_layout(
+        title="Distribution des classes (U-Net)",
+        xaxis_title="Pixels",
+        yaxis_title="Classes",
+        template="plotly_white"
+    )
 
-fig.update_layout(
-    title="Distribution des classes (U-Net)",
-    xaxis_title="Pixels",
-    yaxis_title="Classes",
-    template="plotly_white"
-)
+    html_plot = plot(fig, output_type='div', include_plotlyjs='cdn')
 
-# Génère un code HTML à insérer dans le template
-html_plot = fig.to_html(full_html=False, include_plotlyjs='cdn')
-return counts, html_plot
-
+    return counts, html_plot
     
 @app.get("/explore", response_class=HTMLResponse)
 async def explore_dataset(request: Request):
