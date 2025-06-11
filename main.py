@@ -7,6 +7,12 @@ import uuid
 import sys
 import os
 
+from plotly.offline import plot
+import plotly.graph_objs as go
+from typing import Tuple, Dict
+import numpy as np
+from PIL import Image
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from utils.model_loader import load_model
@@ -111,55 +117,65 @@ async def predict(
 # Page d'exploration du dataset
 # ---------------------
 
-# Fonction locale pour calculer la répartition des classes
-from plotly.offline import plot
-import plotly.graph_objs as go
+CLASS_NAMES = {
+    0: "Arrière-plan",
+    1: "Véhicules",
+    2: "Piétons",
+    3: "Bâtiments",
+    4: "Route",
+    5: "Signalisation",
+    6: "Végétation",
+    7: "Autres"
+}
 
-def compute_class_stats(catalog_path: str) -> Tuple[Dict[str, int], str]:
-    CLASS_NAMES = {
-        0: "Arrière-plan",
-        1: "Véhicules",
-        2: "Piétons",
-        3: "Bâtiments",
-        4: "Route",
-        5: "Signalisation",
-        6: "Végétation",
-        7: "Autres"
-    }
-
-    counts = {label: 0 for label in CLASS_NAMES.values()}
+def compute_class_stats_dual(catalog_path: str) -> Tuple[Dict[str, int], Dict[str, int], str, str]:
+    counts_unet = {label: 0 for label in CLASS_NAMES.values()}
+    counts_deeplab = {label: 0 for label in CLASS_NAMES.values()}
 
     for filename in os.listdir(catalog_path):
-        if filename.endswith("_mask_unet.png"):
-            mask_path = os.path.join(catalog_path, filename)
+        mask_path = os.path.join(catalog_path, filename)
+        if filename.endswith("_mask_unet_stat.png"):
             mask = np.array(Image.open(mask_path))
-
             for class_id, label in CLASS_NAMES.items():
-                counts[label] += int(np.sum(mask == class_id))
+                counts_unet[label] += int(np.sum(mask == class_id))
 
-    # Génération du graphique Plotly
-    labels = list(counts.keys())
-    values = list(counts.values())
+        elif filename.endswith("_mask_deeplab_stat.png"):
+            mask = np.array(Image.open(mask_path))
+            for class_id, label in CLASS_NAMES.items():
+                counts_deeplab[label] += int(np.sum(mask == class_id))
 
-    fig = go.Figure(go.Bar(
-        x=values,
-        y=labels,
+    # Graphique U-Net
+    fig_unet = go.Figure(go.Bar(
+        x=list(counts_unet.values()),
+        y=list(counts_unet.keys()),
         orientation='h',
         marker=dict(color='mediumpurple'),
-        text=values,
+        text=list(counts_unet.values()),
         textposition='auto'
     ))
-
-    fig.update_layout(
+    fig_unet.update_layout(
         title="Distribution des classes (U-Net)",
-        xaxis_title="Pixels",
-        yaxis_title="Classes",
-        template="plotly_white"
+        xaxis_title="Pixels", yaxis_title="Classes", template="plotly_white"
     )
+    html_unet = plot(fig_unet, output_type='div', include_plotlyjs=False)
 
-    html_plot = plot(fig, output_type='div', include_plotlyjs='cdn')
+    # Graphique DeepLab
+    fig_deeplab = go.Figure(go.Bar(
+        x=list(counts_deeplab.values()),
+        y=list(counts_deeplab.keys()),
+        orientation='h',
+        marker=dict(color='lightseagreen'),
+        text=list(counts_deeplab.values()),
+        textposition='auto'
+    ))
+    fig_deeplab.update_layout(
+        title="Distribution des classes (DeepLabV3+)",
+        xaxis_title="Pixels", yaxis_title="Classes", template="plotly_white"
+    )
+    html_deeplab = plot(fig_deeplab, output_type='div', include_plotlyjs='cdn')
 
-    return counts, html_plot
+    return counts_unet, counts_deeplab, html_unet, html_deeplab
+
     
 @app.get("/explore", response_class=HTMLResponse)
 async def explore_dataset(request: Request):
@@ -187,13 +203,15 @@ async def explore_dataset(request: Request):
                 "overlay_deeplab": overlay_deeplab
             })
 
-    class_counts, plot_data = compute_class_stats(catalog_path)
+    counts_unet, counts_deeplab, plot_unet, plot_deeplab = compute_class_stats_dual(catalog_path)
 
     return templates.TemplateResponse("explore.html", {
         "request": request,
         "comparisons": comparisons,
-        "class_counts": class_counts,
-        "plot_data": plot_data
+        "counts_unet": counts_unet,
+        "counts_deeplab": counts_deeplab,
+        "plot_unet": plot_unet,
+        "plot_deeplab": plot_deeplab
     })
 
 # ---------------------

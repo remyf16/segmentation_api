@@ -13,6 +13,33 @@
       color: #4b0082;
       text-align: center;
     }
+    .chart {
+      margin: 3rem 0;
+      text-align: center;
+    }
+    .chart-block {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .chart-single {
+      flex: 1;
+      min-width: 400px;
+      max-width: 600px;
+      background: white;
+      padding: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 1rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
     .container {
       display: flex;
       flex-wrap: wrap;
@@ -32,23 +59,13 @@
       margin-bottom: 0.5rem;
       border-radius: 6px;
     }
-    .image-group small {
+    .img-block {
+      margin-bottom: 1rem;
+    }
+    .img-block small {
+      font-weight: bold;
       display: block;
-      margin-top: 0.5rem;
-      color: #555;
-    }
-    .chart {
-      text-align: center;
-      margin: 3rem 0;
-    }
-    ul {
-      max-width: 500px;
-      margin: auto;
-      padding-left: 0;
-      list-style: none;
-    }
-    li {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
     }
     a {
       display: block;
@@ -58,65 +75,72 @@
       text-decoration: none;
       font-weight: bold;
     }
-    .img-block {
-      margin-bottom: 1rem;
-    }
-    .img-block small {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 0.3rem;
-    }
-
   </style>
 </head>
 <body>
 
   <h1>Exploration du Dataset</h1>
 
-<div class="chart">
-  <h2>Distribution des classes</h2>
-  {{ plot_data | safe }}
-  <ul>
-    {% for label, count in class_counts.items() %}
-      <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
-    {% endfor %}
-  </ul>
-</div>
+  <h2>Distribution des classes par modèle</h2>
 
-  <h2>Comparaison des modèles</h2>
-<div class="container">
-  {% for triplet in comparisons %}
-    <div class="image-group">
+  <div class="chart-block">
 
-      <div class="img-block">
-        <small>Image d'origine</small>
-        <img src="{{ triplet.original }}" alt="Image d'origine">
-      </div>
-
-      <div class="img-block">
-        <small>Masque U-Net</small>
-        <img src="{{ triplet.unet }}" alt="Masque U-Net">
-      </div>
-
-      <div class="img-block">
-        <small>Overlay U-Net</small>
-        <img src="{{ triplet.overlay_unet }}" alt="Overlay U-Net">
-      </div>
-
-      <div class="img-block">
-        <small>Masque DeepLabV3+</small>
-        <img src="{{ triplet.deeplab }}" alt="Masque DeepLabV3+">
-      </div>
-
-      <div class="img-block">
-        <small>Overlay DeepLabV3+</small>
-        <img src="{{ triplet.overlay_deeplab }}" alt="Overlay DeepLabV3+">
-      </div>
-
+    <div class="chart-single">
+      <h3>U-Net</h3>
+      {{ plot_unet | safe }}
+      <ul>
+        {% for label, count in counts_unet.items() %}
+          <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
+        {% endfor %}
+      </ul>
     </div>
-  {% endfor %}
-    
-</div>
+
+    <div class="chart-single">
+      <h3>DeepLabV3+</h3>
+      {{ plot_deeplab | safe }}
+      <ul>
+        {% for label, count in counts_deeplab.items() %}
+          <li><strong>{{ label }}</strong> : {{ count }} pixels</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+
+  <h2>Comparaison des masques</h2>
+
+  <div class="container">
+    {% for triplet in comparisons %}
+      <div class="image-group">
+
+        <div class="img-block">
+          <small>Image d'origine</small>
+          <img src="{{ triplet.original }}" alt="Image d'origine">
+        </div>
+
+        <div class="img-block">
+          <small>Masque U-Net</small>
+          <img src="{{ triplet.unet }}" alt="Masque U-Net">
+        </div>
+
+        <div class="img-block">
+          <small>Overlay U-Net</small>
+          <img src="{{ triplet.overlay_unet }}" alt="Overlay U-Net">
+        </div>
+
+        <div class="img-block">
+          <small>Masque DeepLabV3+</small>
+          <img src="{{ triplet.deeplab }}" alt="Masque DeepLab">
+        </div>
+
+        <div class="img-block">
+          <small>Overlay DeepLabV3+</small>
+          <img src="{{ triplet.overlay_deeplab }}" alt="Overlay DeepLab">
+        </div>
+
+      </div>
+    {% endfor %}
+  </div>
 
   <a href="/">← Revenir à la prédiction</a>
 </body>
